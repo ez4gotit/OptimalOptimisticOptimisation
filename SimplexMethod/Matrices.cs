@@ -4,7 +4,7 @@ using System;
 public class Matrix
 {
     public int Rows { get; private set; }
-    protected int Columns { get; private set; }
+    public int Columns { get; private set; }
     public double[,] values;
 
     public Matrix(int rows, int cols)
@@ -12,6 +12,17 @@ public class Matrix
         Rows = rows;
         Columns = cols;
         values = new double[rows, cols];
+    }
+    
+    public Matrix(double[,] vals) {
+        int n = vals.GetLength(0);
+        int m = vals.GetLength(1);
+        values = new double[n, m];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                values[i, j] = vals[i, j];
+            }
+        }
     }
 
     public Matrix(Matrix m)
@@ -46,6 +57,11 @@ public class Matrix
         return result;
     }
 
+    public double this[int i, int j]
+   {
+      get => values[i, j];
+      set => values[i, j] = value;
+   }
     public static Matrix operator -(Matrix a, Matrix b)
     {
         if (a.Rows != b.Rows || a.Columns != b.Columns)
@@ -84,6 +100,65 @@ public class Matrix
             }
         }
         return result;
+    }
+    public Matrix Transpose()
+    {
+        Matrix result = new Matrix(Columns, Rows);
+        for (int i = 0; i < Rows; i++)
+        {
+            for (int j = 0; j < Columns; j++)
+            {
+                result.values[j, i] = values[i, j];
+            }
+        }
+        return result;
+    }
+    public Matrix getRegion(int nStart, int mStart, int nEnd, int mEnd) {
+        if (nStart < 0 || mStart < 0
+        || nEnd >= Rows || mEnd >= Columns
+        || nStart > nEnd || mStart > mEnd) {
+            Console.WriteLine("Wrong input data");
+            return null;
+        }
+        int regionRows = nEnd - nStart + 1;
+        int regionColumns = mEnd - mStart + 1;
+        Matrix regionMatrix = new Matrix(regionRows, regionColumns);
+        for (int i = nStart; i < nEnd; i++) {
+            for (int j = mStart; j < mEnd; j++) {
+                regionMatrix[i-nStart, j-mStart] = values[i, j];
+            }
+        } 
+        return regionMatrix;
+    }
+
+    public void setRegion(int nStart, int mStart, double[,] vals) {
+        int nEnd = nStart + vals.GetLength(0);
+        int mEnd = mStart + vals.GetLength(1);
+        if (nStart < 0 || mStart < 0
+        || nEnd >= Rows || mEnd >= Columns) {
+            Console.WriteLine("Wrong input data");
+            return;
+        }
+        for (int i = nStart; i < nEnd; i++) {
+            for (int j = mStart; j < mEnd; j++) {
+                values[i, j] = vals[i-nStart, j-mStart];
+            }
+        }
+    }
+
+    public void setRegion(int nStart, int mStart, Matrix mx) {
+        int nEnd = nStart + mx.Rows;
+        int mEnd = mStart + mx.Columns;
+        if (nStart < 0 || mStart < 0
+        || nEnd >= Rows || mEnd >= Columns) {
+            Console.WriteLine("Wrong input data");
+            return;
+        }
+        for (int i = nStart; i < nEnd; i++) {
+            for (int j = mStart; j < mEnd; j++) {
+                values[i, j] = mx[i-nStart, j-mStart];
+            }
+        }
     }
 
     public override string ToString()
@@ -165,6 +240,12 @@ public class SquareMatrix : Matrix
     public SquareMatrix(int n) : base(n, n)
     {
     }
+    public SquareMatrix(double[,] vals) : base(vals)
+    {        
+        if (vals.GetLength(0) != vals.GetLength(1)) {
+            throw new ArgumentException("Invalid dimension sizes of matrix");
+        }
+    }
 
     public static SquareMatrix operator +(SquareMatrix a, SquareMatrix b)
     {
@@ -224,7 +305,7 @@ public class SquareMatrix : Matrix
         return result;
     }
 
-    public SquareMatrix Transpose()
+    public new SquareMatrix Transpose()
     {
         SquareMatrix result = new SquareMatrix(Rows);
         for (int i = 0; i < Rows; i++)
@@ -235,6 +316,9 @@ public class SquareMatrix : Matrix
             }
         }
         return result;
+    }
+    public new SquareMatrix setRegion(int nStart, int mStart, Matrix mx) {
+        return this.setRegion(nStart, mStart, mx);
     }
 
     public SquareMatrix GaussianElimination()
