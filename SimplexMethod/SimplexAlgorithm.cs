@@ -71,7 +71,12 @@ public class SimplexAlgorithm {
 
   }
   private static int[] GetInitialBasisColumns(Matrix coefficients, Matrix constraints) {
-    return new int[] {0};
+    int numOfDecisionVariables = coefficients.Columns-coefficients.Rows;
+    int[] basisColumns = new int[coefficients.Rows];
+    for (int i = numOfDecisionVariables; i < coefficients.Columns; i++) {
+      basisColumns[i - numOfDecisionVariables] = i;
+    } 
+    return basisColumns;
   }
   private static int[] GetInitialNonBasisColumns(int[] basisColumns, int n) {
     int[] nonBasisColumns = new int[n - basisColumns.Length];
