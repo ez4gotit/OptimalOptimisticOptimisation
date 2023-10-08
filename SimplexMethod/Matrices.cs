@@ -15,11 +15,11 @@ public class Matrix
     }
     
     public Matrix(double[,] vals) {
-        int n = vals.GetLength(0);
-        int m = vals.GetLength(1);
-        values = new double[n, m];
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
+        Rows = vals.GetLength(0);
+        Columns = vals.GetLength(1);
+        values = new double[Rows, Columns];
+        for (int i = 0; i < Rows; i++) {
+            for (int j = 0; j < Columns; j++) {
                 values[i, j] = vals[i, j];
             }
         }
@@ -113,15 +113,15 @@ public class Matrix
         }
         return result;
     }
-    public Matrix getRegion(int nStart, int mStart, int nEnd, int mEnd) {
+    public Matrix GetRegion(int nStart, int mStart, int nEnd, int mEnd) {
         if (nStart < 0 || mStart < 0
-        || nEnd >= Rows || mEnd >= Columns
+        || nEnd > Rows || mEnd > Columns
         || nStart > nEnd || mStart > mEnd) {
             Console.WriteLine("Wrong input data");
             return null;
         }
-        int regionRows = nEnd - nStart + 1;
-        int regionColumns = mEnd - mStart + 1;
+        int regionRows = nEnd - nStart;
+        int regionColumns = mEnd - mStart;
         Matrix regionMatrix = new Matrix(regionRows, regionColumns);
         for (int i = nStart; i < nEnd; i++) {
             for (int j = mStart; j < mEnd; j++) {
@@ -131,11 +131,11 @@ public class Matrix
         return regionMatrix;
     }
 
-    public void setRegion(int nStart, int mStart, double[,] vals) {
+    public void SetRegion(int nStart, int mStart, double[,] vals) {
         int nEnd = nStart + vals.GetLength(0);
         int mEnd = mStart + vals.GetLength(1);
         if (nStart < 0 || mStart < 0
-        || nEnd >= Rows || mEnd >= Columns) {
+        || nEnd > Rows || mEnd > Columns) {
             Console.WriteLine("Wrong input data");
             return;
         }
@@ -146,11 +146,11 @@ public class Matrix
         }
     }
 
-    public void setRegion(int nStart, int mStart, Matrix mx) {
+    public void SetRegion(int nStart, int mStart, Matrix mx) {
         int nEnd = nStart + mx.Rows;
         int mEnd = mStart + mx.Columns;
         if (nStart < 0 || mStart < 0
-        || nEnd >= Rows || mEnd >= Columns) {
+        || nEnd > Rows || mEnd > Columns) {
             Console.WriteLine("Wrong input data");
             return;
         }
@@ -317,9 +317,35 @@ public class SquareMatrix : Matrix
         }
         return result;
     }
-    public new SquareMatrix setRegion(int nStart, int mStart, Matrix mx) {
-        return this.setRegion(nStart, mStart, mx);
+    public new void SetRegion(int nStart, int mStart, double[,] vals){
+        int nEnd = nStart + vals.GetLength(0);
+        int mEnd = mStart + vals.GetLength(1);
+        if (nStart < 0 || mStart < 0
+        || nEnd > Rows || mEnd > Columns) {
+            Console.WriteLine("Wrong input data");
+            return;
+        }
+        for (int i = nStart; i < nEnd; i++) {
+            for (int j = mStart; j < mEnd; j++) {
+                values[i, j] = vals[i-nStart, j-mStart];
+            }
+        }
     }
+    public new void SetRegion(int nStart, int mStart, Matrix mx) {
+        int nEnd = nStart + mx.Rows;
+        int mEnd = mStart + mx.Columns;
+        if (nStart < 0 || mStart < 0
+        || nEnd > Rows || mEnd > Columns) {
+            Console.WriteLine("Wrong input data");
+            return;
+        }
+        for (int i = nStart; i < nEnd; i++) {
+            for (int j = mStart; j < mEnd; j++) {
+                values[i, j] = mx[i-nStart, j-mStart];
+            }
+        }
+    }
+
 
     public SquareMatrix GaussianElimination()
     {

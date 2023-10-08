@@ -2,83 +2,96 @@ namespace SimplexMethod;
 
 
 public class SimplexAlgorithm {
-  public static (double, Matrix) Optimize(Matrix coefficients, Matrix constraints, Matrix rhs, double accuracy) {
-    int[] basisColumns = GetInitialBasisColumns(coefficients, constraints);
-    int[] nonBasisColumns =  GetInitialNonBasisColumns(basisColumns, constraints.Columns);
-    SquareMatrix basis = FormInitalBasis(basisColumns, constraints);
-    SquareMatrix basisInverse = basis.Inverse();
-    Matrix basisCoefficients = GetBasisCoefficients(basisColumns, coefficients);
-    Matrix decisionVars = new Matrix(0, 0);
+  public static (double, Matrix) Optimize(Matrix C, Matrix A, Matrix b, double accuracy) {
+    // Step 0: determine initial basis and basis variables
+    int[] basisVars = GetInitialBasisVars(C, A);
+    int[] nonBasisVars = GetInitialNonBasisVars(basisVars, C.Columns);
+    SquareMatrix B = FormInitalBasis(basisVars, A);
+    SquareMatrix B_Inv;
+    Matrix Cb;
+    Matrix Xb = new(0, 0);
     double z = 0;
     bool isFeasibleSolution = true;
+    
+    
+    // Start the iterations of the algorithm 
     while (isFeasibleSolution) {
-      decisionVars = basisInverse * rhs;
-      z = (basisCoefficients * decisionVars)[0,0];
-      int enteringVariableIndex = GetEnteringVariable(basisInverse, basisCoefficients, constraints, coefficients, nonBasisColumns, accuracy);
+      // Step 1: compute B^-1 and solution for current basis and coefficients
+      Cb = GetBasisCoefficients(basisVars, C);
+      B_Inv = B.Inverse();
+      Xb = B_Inv * b;
+      z = (Cb * Xb)[0,0];
+
+      // Step 2: determine the entering variable and stop the algorithm if the solution is optimal
+      int enteringVariableIndex = GetEnteringVar(B_Inv, Cb, A, C, nonBasisVars, accuracy);
       if (enteringVariableIndex == -1) {
         break;
       }
-      int enteringVariable = nonBasisColumns[enteringVariableIndex];
-      int exitingVariableIndex = GetExitingVariable(basisInverse, constraints, enteringVariable, decisionVars, accuracy);
+      int enteringVariable = nonBasisVars[enteringVariableIndex];
+
+
+      // Step 3: determine the exiting variable and stop the algorithm if the solution is unbounded
+      int exitingVariableIndex = GetExitingVar(B_Inv, A, enteringVariable, Xb, accuracy);
       if (exitingVariableIndex == -1) {
         Console.WriteLine("Unbounded Solution");
         break;
       }
-      int exitingVariable = basisColumns[exitingVariableIndex];
-      basisColumns[exitingVariableIndex] = enteringVariable;
-      nonBasisColumns[enteringVariableIndex] = exitingVariable;
-      basis.setRegion(0, exitingVariableIndex, constraints.getRegion(0, enteringVariable, constraints.Rows, enteringVariable));
-      basisInverse = basis.Inverse();
+      int exitingVariable = basisVars[exitingVariableIndex];
+
+
+      // Step 4: Replace exiting column with entering column in basis.
+      basisVars[exitingVariableIndex] = enteringVariable;
+      nonBasisVars[enteringVariableIndex] = exitingVariable;
+      B.SetRegion(0, exitingVariableIndex, A.GetRegion(0, enteringVariable, A.Rows, enteringVariable+1));
     }
 
-    return (z, decisionVars);
+    // Return the result at the end of algorithm
+    return (z, Xb);
   }
-  private static int GetEnteringVariable(Matrix basisInverse, Matrix basisCoefficients, Matrix constraints, Matrix coefficients, int[] nonBasisColumns, double accuracy) {
-    double minElem = 0;
-    int minElemPos = -1;
-    int numOfColumns = nonBasisColumns.Length;
-    int numOfVariables = constraints.Columns;
-    int numOfEquations = constraints.Rows;
-    for (int i = 0; i < numOfColumns; i++) {
-      int currentColumnIndex = nonBasisColumns[i];
-      Matrix currentColumn = constraints.getRegion(0, currentColumnIndex, numOfEquations, currentColumnIndex);
-      double currentValue = (basisCoefficients * basisInverse * currentColumn)[0,0] - coefficients[0, currentColumnIndex];
-      if (currentValue + accuracy < minElem) {
-        minElem = currentValue + accuracy;
-        minElemPos = currentColumnIndex;
+  private static int GetEnteringVar(Matrix B_Inv, Matrix Cb, Matrix A, Matrix C, int[] nonBasisVars, double accuracy) {
+    double minVarValue = 0;
+    int enteringVar = -1;
+    int numOfEquations = A.Rows;
+    for (int i = 0; i < nonBasisVars.Length; i++) {
+      int currentVar = nonBasisVars[i];
+      Matrix currentColumn = A.GetRegion(0, currentVar, numOfEquations, currentVar+1);
+      double currentValue = (Cb * B_Inv * currentColumn)[0,0] - C[0, currentVar];
+      if (currentValue + accuracy < minVarValue) {
+        minVarValue = currentValue + accuracy;
+        enteringVar = i;
       }
     } 
-    return minElemPos;
+    return enteringVar;
   }
-  private static int GetExitingVariable(Matrix basisInverse, Matrix constraints, int enteringVariable, Matrix currentSolution, double accuracy) {
-    int numOfEquations = constraints.Rows;
+  private static int GetExitingVar(Matrix B_Inv, Matrix A, int enteringVar, Matrix Xb, double accuracy) {
+    int numOfEquations = A.Rows;
     double minRatio = -1;
-    int minRatioPos = -1;
+    int exitingVar = -1;
     double currentRatio;
-    Matrix enteringColumn = constraints.getRegion(0, enteringVariable, numOfEquations, enteringVariable);
-    Matrix denominatorMatrix = basisInverse * enteringColumn;
+    Matrix enteringVarColumn = A.GetRegion(0, enteringVar, numOfEquations, enteringVar+1);
+    Matrix enteringVarCoefficients = B_Inv * enteringVarColumn;
     for (int i = 0; i < numOfEquations; i++) {
-      if (denominatorMatrix[0,i] <= 0 || currentSolution[0, i] <= 0) {
+      if (enteringVarCoefficients[i,0] <= 0 || Xb[i, 0] <= 0) {
         continue;
       }
-      currentRatio = currentSolution[0,i] / denominatorMatrix[0, i];
-      if (currentRatio < minRatio || minRatioPos == -1) {
+      currentRatio = Xb[i, 0] / enteringVarCoefficients[i, 0];
+      if (currentRatio < minRatio || exitingVar == -1) {
         minRatio = currentRatio;
-        minRatioPos = i;
+        exitingVar = i;
       }
     }
-    return minRatioPos;
+    return exitingVar;
 
   }
-  private static int[] GetInitialBasisColumns(Matrix coefficients, Matrix constraints) {
-    int numOfDecisionVariables = coefficients.Columns-coefficients.Rows;
-    int[] basisColumns = new int[coefficients.Rows];
-    for (int i = numOfDecisionVariables; i < coefficients.Columns; i++) {
-      basisColumns[i - numOfDecisionVariables] = i;
+  private static int[] GetInitialBasisVars(Matrix C, Matrix A) {
+    int basisLen = A.Columns-A.Rows;
+    int[] basisVars = new int[A.Rows];
+    for (int i = basisLen; i < A.Columns; i++) {
+      basisVars[i - basisLen] = i;
     } 
-    return basisColumns;
+    return basisVars;
   }
-  private static int[] GetInitialNonBasisColumns(int[] basisColumns, int n) {
+  private static int[] GetInitialNonBasisVars(int[] basisColumns, int n) {
     int[] nonBasisColumns = new int[n - basisColumns.Length];
     int currentColumn = 0;
     int currentBasis = 0;
@@ -92,14 +105,14 @@ public class SimplexAlgorithm {
     }
     return nonBasisColumns;
   }
-  private static SquareMatrix FormInitalBasis(int[] basisColumns, Matrix constraints) {
-    int m = basisColumns.Length;
-    int rows = constraints.Rows;
+  private static SquareMatrix FormInitalBasis(int[] basisVars, Matrix A) {
+    int m = basisVars.Length;
+    int rows = A.Rows;
     double[,] basis = new double[rows, m];
     for (int j = 0; j < m; j++) {
-      int constraintColumn = basisColumns[j];
+      int varColumn = basisVars[j];
       for (int i = 0; i < rows; i++) {
-        basis[i, j] = constraints[i, constraintColumn];
+        basis[i, j] = A[i, varColumn];
       }
     }
     SquareMatrix basisMatrix = new SquareMatrix(basis);
