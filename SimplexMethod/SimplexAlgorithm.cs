@@ -6,10 +6,12 @@ public class SimplexAlgorithm {
     // Step 0: determine initial basis and basis variables
     int[] basisVars = GetInitialBasisVars(C, A);
     int[] nonBasisVars = GetInitialNonBasisVars(basisVars, C.Columns);
+    int numOfDecisionVars = A.Columns - A.Rows;
     SquareMatrix B = FormInitalBasis(basisVars, A);
     SquareMatrix B_Inv;
     Matrix Cb;
-    Matrix Xb = new(0, 0);
+    Matrix Xb;
+    Matrix decisionVars = new Matrix(0, 0);
     double z = 0;
     bool isFeasibleSolution = true;
     
@@ -19,8 +21,11 @@ public class SimplexAlgorithm {
       // Step 1: compute B^-1 and solution for current basis and coefficients
       Cb = GetBasisCoefficients(basisVars, C);
       B_Inv = B.Inverse();
+      B_Inv.RoundMatrix(accuracy);
       Xb = B_Inv * b;
-      z = (Cb * Xb)[0,0];
+      Xb.RoundMatrix(accuracy);
+      z = Matrix.RoundVal((Cb * Xb)[0,0], accuracy);
+      decisionVars = GetDecisionVars(basisVars, numOfDecisionVars, Xb);
 
       // Step 2: determine the entering variable and stop the algorithm if the solution is optimal
       int enteringVariableIndex = GetEnteringVar(B_Inv, Cb, A, C, nonBasisVars, accuracy);
@@ -46,7 +51,20 @@ public class SimplexAlgorithm {
     }
 
     // Return the result at the end of algorithm
-    return (z, Xb);
+    return (z, decisionVars);
+  }
+
+  private static Matrix GetDecisionVars(int[] basisVars, int n, Matrix Xb) {
+    Matrix decisionVars = new Matrix(1, n);
+    for (int i = 0; i < n; i++) {
+      for (int j = 0; j < basisVars.Length; j++) {
+        if (basisVars[j] == i) {
+          decisionVars[0, i] = Xb[j, 0];
+          break;
+        }
+      }
+    } 
+    return decisionVars;
   }
   private static int GetEnteringVar(Matrix B_Inv, Matrix Cb, Matrix A, Matrix C, int[] nonBasisVars, double accuracy) {
     double minVarValue = 0;
@@ -55,9 +73,9 @@ public class SimplexAlgorithm {
     for (int i = 0; i < nonBasisVars.Length; i++) {
       int currentVar = nonBasisVars[i];
       Matrix currentColumn = A.GetRegion(0, currentVar, numOfEquations, currentVar+1);
-      double currentValue = (Cb * B_Inv * currentColumn)[0,0] - C[0, currentVar];
-      if (currentValue + accuracy < minVarValue) {
-        minVarValue = currentValue + accuracy;
+      double currentValue = Matrix.RoundVal((Cb * B_Inv * currentColumn)[0,0] - C[0, currentVar], accuracy);
+      if (currentValue < minVarValue) {
+        minVarValue = currentValue;
         enteringVar = i;
       }
     } 
@@ -70,11 +88,12 @@ public class SimplexAlgorithm {
     double currentRatio;
     Matrix enteringVarColumn = A.GetRegion(0, enteringVar, numOfEquations, enteringVar+1);
     Matrix enteringVarCoefficients = B_Inv * enteringVarColumn;
+    enteringVarCoefficients.RoundMatrix(accuracy);
     for (int i = 0; i < numOfEquations; i++) {
       if (enteringVarCoefficients[i,0] <= 0 || Xb[i, 0] <= 0) {
         continue;
       }
-      currentRatio = Xb[i, 0] / enteringVarCoefficients[i, 0];
+      currentRatio = Matrix.RoundVal(Xb[i, 0] / enteringVarCoefficients[i, 0], accuracy);
       if (currentRatio < minRatio || exitingVar == -1) {
         minRatio = currentRatio;
         exitingVar = i;

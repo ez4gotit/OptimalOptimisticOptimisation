@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace InputUtility
+namespace SimplexMethod
 {
     public class InputLibrary
     {
@@ -77,6 +77,12 @@ namespace InputUtility
                     {
                         Console.WriteLine($"Invalid amount of numbers. Expected {numRows} numbers.");
                         continue;
+                    }
+                    foreach (double value in rhs) {
+                        if (value < 0) {
+                            Console.WriteLine("Method is not applicable: all right handside values should nonegative. Please, enter correct data.");
+                            continue;
+                        }
                     }
                     return rhs;
                 }

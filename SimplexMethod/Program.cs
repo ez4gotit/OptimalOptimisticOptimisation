@@ -4,14 +4,24 @@
     {
         static void Main(string[] args)
         {
-            Matrix A = new Matrix(new double[,] {{6, 4, 1, 0, 0, 0}, 
-                                                 {1, 2, 0, 1, 0, 0},
-                                                 {-1, 1, 0, 0, 1, 0},
-                                                 {0, 1, 0, 0, 0, 1}});
-            Matrix C = new Matrix(new double[,] {{5, 4, 0, 0, 0, 0}});
-            Matrix b = new Matrix(new double[,] {{24},{6},{1},{2}});
-            (double z, Matrix Xb) = SimplexAlgorithm.Optimize(C, A, b, 0);
-            Console.WriteLine(Xb.ToString());
+            // Matrix C = new Matrix(new double[,] {{5, 4, 0, 0, 0, 0}});
+            // Matrix b = new Matrix(new double[,] {{24},{6},{1},{2}});
+            // Matrix A = new Matrix(new double[,] {{6, 4, 1, 0, 0, 0}, 
+            //                                      {1, 2, 0, 1, 0, 0},
+            //                                      {-1, 1, 0, 0, 1, 0},
+            //                                      {0, 1, 0, 0, 0, 1}});
+            
+
+            double[] arrayC = InputLibrary.ReadObjectiveFunctionCoefficients();
+            int rows = arrayC.Length;
+            double[,] arrayA = InputLibrary.ReadConstraintMatrix(rows);
+            double[] arrayb = InputLibrary.ReadRightHandSide(rows);
+            double accuracy = InputLibrary.ReadApproximationAccuracy();
+            Matrix C = new Matrix(arrayC);
+            Matrix A = new Matrix(arrayA);
+            Matrix b = new Matrix(arrayb);
+            (double z, Matrix vars) = SimplexAlgorithm.Optimize(C, A, b, accuracy);
+            Console.WriteLine(vars.ToString());
             Console.WriteLine(z);
                             
         }

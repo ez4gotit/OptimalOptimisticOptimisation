@@ -24,6 +24,15 @@ public class Matrix
             }
         }
     }
+    public Matrix(double[] vals) {
+        Rows = 1;
+        Columns = vals.Length;
+        values = new double[Rows, Columns];
+
+        for (int i = 0; i < Columns; i++) {
+            values[0, i] = vals[i];
+        }
+    }
 
     public Matrix(Matrix m)
     {
@@ -35,6 +44,18 @@ public class Matrix
             for (int j = 0; j < Columns; j++)
             {
                 values[i, j] = m.values[i, j];
+            }
+        }
+    }
+    public static double RoundVal(double value, double alpha)
+    {
+    double roundedValue = Math.Round(value / alpha) * alpha;
+    return roundedValue;
+    }
+    public void RoundMatrix(double alpha) {
+        for (int i = 0; i < Rows; i++) {
+            for (int j = 0; j < Columns; j++) {
+                values[i, j] = RoundVal(values[i,j], alpha);
             }
         }
     }
