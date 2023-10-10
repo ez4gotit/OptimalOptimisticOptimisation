@@ -26,4 +26,4 @@
      ```
    - Alternatively, run the provided `run_tests.sh` script.
 
-4. The test results will be reported in the `tests
+4. The test results will be reported in the `tests_report.txt'
