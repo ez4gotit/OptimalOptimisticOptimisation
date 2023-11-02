@@ -131,6 +131,38 @@ namespace SimplexMethod
             }
             return result;
         }
+        public static Matrix operator *(Matrix a, double alpha) {
+            for (int i = 0; i < a.Rows; i++) {
+                for (int j = 0; j < a.Columns; j++) {
+                    a[i, j] *= alpha;
+                }
+            }
+            return a;
+        }
+        public static Matrix operator *(double alpha, Matrix a) {
+            for (int i = 0; i < a.Rows; i++) {
+                for (int j = 0; j < a.Columns; j++) {
+                    a[i, j] *= alpha;
+                }
+            }
+            return a;
+        }
+        public static Matrix operator /(Matrix a, double alpha) {
+            for (int i = 0; i < a.Rows; i++) {
+                for (int j = 0; j < a.Columns; j++) {
+                    a[i, j] *= alpha;
+                }
+            }
+            return a;
+        }
+        public static Matrix operator /(double alpha, Matrix a) {
+            for (int i = 0; i < a.Rows; i++) {
+                for (int j = 0; j < a.Columns; j++) {
+                    a[i, j] *= alpha;
+                }
+            }
+            return a;
+        }
         public Matrix Transpose()
         {
             Matrix result = new Matrix(Columns, Rows);
@@ -245,7 +277,6 @@ namespace SimplexMethod
             }
             return result;
         }
-
         public static ColumnVector operator -(ColumnVector a, ColumnVector b)
         {
             if (a.Rows != b.Rows)
@@ -288,6 +319,9 @@ namespace SimplexMethod
             {
                 throw new ArgumentException("Invalid dimension sizes of matrix");
             }
+        }
+        public  SquareMatrix(Matrix m) : base(m)
+        {
         }
 
         public static SquareMatrix operator +(SquareMatrix a, SquareMatrix b)

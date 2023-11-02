@@ -25,7 +25,7 @@ namespace SimplexMethod
             while (true)
             {
                 Console.WriteLine("Enter the coefficients of the constraint matrix (A):");
-                Console.Write("Enter the number of rows: ");
+                Console.WriteLine("Enter the number of rows: ");
                 if (!int.TryParse(Console.ReadLine(), out int numRows) || numRows <= 0)
                 {
                     Console.WriteLine("Invalid input. Number of rows must be a positive integer.");
@@ -121,6 +121,26 @@ namespace SimplexMethod
             }
 
             return true;
+        }
+        public static double[] ReadInitialSolution(int numVars)
+         {
+            while (true)
+            {
+                Console.WriteLine("Enter the initial solution:");
+                string input = Console.ReadLine();
+
+                if (TryParseDoubleArray(input, out double[] solution))
+                {
+                    if (solution.Length != numVars) 
+                    {
+                        Console.WriteLine($"Invalid amount of numbers. Expected {numVars} numbers.");
+                        continue;
+                    }
+                    return solution;
+                }
+
+                Console.WriteLine("Invalid input. Please enter comma-separated numbers.");
+            }
         }
     }
 }
