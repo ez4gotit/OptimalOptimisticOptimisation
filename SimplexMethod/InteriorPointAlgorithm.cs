@@ -11,7 +11,7 @@ namespace SimplexMethod
         double change = 1;
         Matrix C_T = C;
         C = C.Transpose();
-        C = -1 * C;
+        // C = -1 * C;
         double z = (x * C_T)[0, 0];
         
         // Start iterative algorithm
