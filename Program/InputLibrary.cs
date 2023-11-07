@@ -109,11 +109,12 @@ namespace SimplexMethod
 
         private static bool TryParseDoubleArray(string input, out double[] result)
         {
-            string[] parts = input.Split(',');
+            string[] parts = input.Split(' ');
             result = new double[parts.Length];
 
             for (int i = 0; i < parts.Length; i++)
             {
+
                 if (!double.TryParse(parts[i], out result[i]))
                 {
                     return false;
@@ -139,7 +140,7 @@ namespace SimplexMethod
                     return solution;
                 }
 
-                Console.WriteLine("Invalid input. Please enter comma-separated numbers.");
+                Console.WriteLine("Invalid input. Please enter space-separated numbers.");
             }
         }
     }
