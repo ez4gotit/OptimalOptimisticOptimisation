@@ -12,7 +12,7 @@ namespace SimplexMethod
                                                                          {1, 3, 0, -1}});
                                     Matrix x = new Matrix(new double[,] {{0.5}, {3.5}, {1}, {2}}); 
                                     double accuracy = 0.01;*/
-             Console.WriteLine("ATTENTION! DECIMAL NUMBERS ARE IN FORMAT OF '0,1' NOT '0.1' AND MIGHT BE ONE SPACE-SEPARATED PLEASE, PAY ATTENTION, WE ARE RE-WORKING PARSER \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+             Console.WriteLine("ATTENTION! DECIMAL NUMBERS ARE IN FORMAT OF '1,0' NOT '1.0' AND MIGHT BE ONE SPACE-SEPARATED PLEASE, PAY ATTENTION, WE ARE RE-WORKING PARSER \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
             Console.SetCursorPosition(0, 20);
              double[] arrayC = InputLibrary.ReadObjectiveFunctionCoefficients();
              int columns = arrayC.Length;
