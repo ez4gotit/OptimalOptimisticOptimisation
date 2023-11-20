@@ -16,7 +16,7 @@ namespace SimplexMethod
                     return coefficients;
                 }
 
-                Console.WriteLine("Invalid input. Please enter comma-separated numbers.");
+                Console.WriteLine("Invalid input. Please enter space-separated numbers.");
             }
         }
 
@@ -39,7 +39,7 @@ namespace SimplexMethod
                     Console.WriteLine($"Enter the coefficients for row {i + 1} (comma-separated):");
                     string input = Console.ReadLine();
 
-                    if (TryParseDoubleArray(input, out double[] rowCoefficients))
+                    if (input != null && TryParseDoubleArray(input, out double[] rowCoefficients))
                     {
                         if (rowCoefficients.Length != numCols)
                         {
@@ -71,7 +71,7 @@ namespace SimplexMethod
                 Console.WriteLine("Enter the right-hand side numbers (b):");
                 string input = Console.ReadLine();
 
-                if (TryParseDoubleArray(input, out double[] rhs))
+                if (input != null&& TryParseDoubleArray(input, out double[] rhs))
                 {
                     if (rhs.Length != numRows) 
                     {
@@ -87,7 +87,7 @@ namespace SimplexMethod
                     return rhs;
                 }
 
-                Console.WriteLine("Invalid input. Please enter comma-separated numbers.");
+                Console.WriteLine("Invalid input. Please enter space-separated numbers.");
             }
         }
 

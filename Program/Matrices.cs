@@ -248,7 +248,7 @@ namespace SimplexMethod
                     }
                     else
                     {
-                        output += values[i, j].ToString("F4") + " ";
+                        output += values[i, j].ToString() + " ";
                     }
                 }
                 output += "\n";
