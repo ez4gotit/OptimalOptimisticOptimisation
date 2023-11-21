@@ -13,9 +13,25 @@ namespace SimplexMethod
             Matrix C = new(costs);
             double[] S = new double[] {20, 90, 70};
             double[] D = new double[] {30, 40, 60, 50};
-            (double z, Matrix solution) = TransportationModel.RussellAproximation(S, C, D);
+            (double z, Matrix solution) = TransportationModel.NortwestRule(S, C, D);
+            Console.WriteLine("Nortwest Corner Rule");
+            Console.WriteLine("Total cost:");
             Console.WriteLine(z);
+            Console.WriteLine("Solution Vector:");
             Console.Write(solution.ToString());
+            (z, solution) = TransportationModel.VogelApproximation(S, C, D);
+            Console.WriteLine("Vogel's Approximation");
+            Console.WriteLine("Total cost:");
+            Console.WriteLine(z);
+            Console.WriteLine("Solution Vector:");
+            Console.Write(solution.ToString());
+            (z, solution) = TransportationModel.RussellAproximation(S, C, D);
+            Console.WriteLine("Russell's Approximation");
+            Console.WriteLine("Total cost:");
+            Console.WriteLine(z);
+            Console.WriteLine("Solution Vector:");
+            Console.Write(solution.ToString());
+
 
                
         }
