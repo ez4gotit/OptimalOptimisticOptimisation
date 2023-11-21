@@ -78,6 +78,78 @@ namespace SimplexMethod {
 
       return (z, solution);
     }
+    public static (double, Matrix) RussellAproximation(double[] S, Matrix C, double[] D) {
+      // Initializing rows and columns
+      int[] rows = new int[C.Rows];
+      for (int i = 0; i < C.Rows; i++) {
+        rows[i] = i;
+      }
+      int[] columns = new int[C.Columns];
+      for (int i = 0; i < C.Columns; i++) {
+        columns[i] = i;
+      }
+      Matrix solution = new(C.Rows, C.Columns);
+      double z = 0;
+      double[] U = new double[C.Rows];
+      double[] V = new double[C.Columns];
+      while (rows.Length > 0 && columns.Length > 0) {
+        FillUV(C, ref U, ref V, rows, columns);
+        (int minRow, int minColumn) = GetMinDeltaPosition(C, U, V, rows, columns);
+        BuyUnit(ref S, ref C, ref D, ref z, ref solution, ref rows, ref columns, minRow, minColumn);
+      }
+
+
+      return (z, solution);
+    }
+    private static (int, int) GetMinDeltaPosition(Matrix C, double[] U, double[] V, int[] rows, int[] columns) {
+      int minRow = rows[0];
+      int minColumn = columns[0];
+      double minValue = C[minRow, minColumn] - U[minRow] - V[minColumn];
+      foreach (int i in rows) {
+        foreach (int j in columns) {
+          double currentDelta = C[i, j] - U[i] - V[j];
+          if (currentDelta <= minValue) {
+            minValue = currentDelta;
+            minRow = i;
+            minColumn = j;
+          }
+        }
+      }
+      return (minRow, minColumn);
+    }
+    private static void FillUV(Matrix C, ref double[] U,  ref double[] V, int[] rows, int[] columns) {
+      foreach (int i in rows) {
+        U[i] = GetMaxInRow(C, i, columns);
+      }
+      foreach (int i in columns) {
+        V[i] = GetMaxInColumn(C, i, rows);
+      }
+    }
+    
+    private static double GetMaxInRow(Matrix C, int row, int[] columns) {
+      int pos = columns[0];
+      double maxValue = C[row, columns[0]];
+      foreach (int i in columns) {
+        double currentElement = C[row, i];
+        if (currentElement >= maxValue) {
+          maxValue = currentElement;
+          pos = i;
+        }
+      }
+      return maxValue;
+    }
+    private static double GetMaxInColumn(Matrix C, int column, int[] rows) {
+      int pos = rows[0];
+      double maxValue = C[rows[0], column];
+      foreach (int i in rows) {
+        double currentElement = C[i, column];
+        if (currentElement >= maxValue) {
+          maxValue = currentElement;
+          pos = i;
+        }
+      }
+      return maxValue;
+    }
     private static void BuyUnit(ref double[] S, ref Matrix C, ref double[] D, ref double z, ref Matrix solution, 
       ref int[] rows, ref int[] columns, int row, int column) {
       double currentUnit = Math.Min(S[row], D[column]);
