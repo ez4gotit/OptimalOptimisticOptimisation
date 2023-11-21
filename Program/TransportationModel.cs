@@ -1,162 +1,7 @@
 using System;
 namespace SimplexMethod {
   public class TransportationModel {
-    public static (double, Matrix) VogelApproximation(Matrix S, Matrix C, Matrix D) {
-      int[] rows = new int[C.Rows];
-      for (int i = 0; i < C.Rows; i++) {
-        rows[i] = i;
-      }
-      int[] columns = new int[C.Columns];
-      for (int i = 0; i < C.Columns; i++) {
-        columns[i] = i;
-      }
-      Matrix solution = new(C.Rows, C.Columns);
-      double z = 0;
-      
-      while (rows.Length > 1 && columns.Length > 1) {
-        double maximumRowPenalty = 0;
-        int rowPosition = 0;
-        foreach (int i in rows) {
-          double rowPenalty = getRowDifferenceOfMins(C, i, columns);
-          if (rowPenalty >= maximumRowPenalty) {
-            maximumRowPenalty = rowPenalty;
-            rowPosition = i;
-          }
-        }
-        double maximumColumnPenalty = 0;
-        int columnPosition = 0;
-        foreach (int i in columns) {
-          double columnPenalty = getColumnDifferenceOfMins(C, i, rows);
-          if (columnPenalty >= maximumColumnPenalty) {
-            maximumColumnPenalty = columnPenalty;
-            columnPosition = i;
-          }
-        }
-        int choosenRow, choosenColumn;
-        if (maximumRowPenalty >= maximumColumnPenalty) {
-          int pos = columns[0];
-          double minValue = C[rowPosition, columns[0]];
-          foreach (int i in columns) {
-            double currentElement = C[rowPosition, i];
-            if (currentElement <= minValue) {
-              minValue = currentElement;
-              pos = i;
-            }
-          }
-          choosenRow = rowPosition;
-          choosenColumn = pos;
-        } else {
-          int pos = rows[0];
-          double minValue = C[rows[0], columnPosition];
-          foreach (int i in rows) {
-            double currentElement = C[i, columnPosition];
-            if (currentElement <= minValue) {
-              minValue = currentElement;
-              pos = i;
-            }
-          }
-          choosenRow = pos;
-          choosenColumn = columnPosition;
-        }
-        
-        double currentUnit = Math.Min(S[choosenRow, 0], D[choosenColumn, 0]);
-        S[choosenRow, 0] -= currentUnit;
-        D[choosenColumn, 0] -= currentUnit;
-        if (S[choosenRow, 0] <= 0) {
-          rows = rows.Where(val => val != choosenRow).ToArray();
-        }
-        if (D[choosenColumn, 0] <= 0) {
-          columns = columns.Where(val => val != choosenColumn).ToArray();
-        }
-        solution[choosenRow, choosenColumn] = currentUnit;
-        z += C[choosenRow, choosenColumn] * currentUnit;
-      }
-      if (rows.Length == 1) {
-        int lastRow = rows[0];
-        while (columns.Length > 0 && rows.Length > 0) {
-          int pos = columns[0];
-          double minValue = C[lastRow, columns[0]];
-          foreach (int i in columns) {
-            double currentElement = C[lastRow, i];
-            if (currentElement <= minValue) {
-              minValue = currentElement;
-              pos = i;
-            }
-          }
-          double currentUnit = Math.Min(S[lastRow, 0], D[pos, 0]);
-          S[lastRow, 0] -= currentUnit;
-          D[pos, 0] -= currentUnit;
-          if (S[lastRow, 0] <= 0) {
-            rows = rows.Where(val => val != lastRow).ToArray();
-          }
-          if (D[pos, 0] <= 0) {
-            columns = columns.Where(val => val != pos).ToArray();
-          }
-          solution[lastRow, pos] = currentUnit;
-          z += C[lastRow, pos] * currentUnit;
-        }
-      } else {
-        int lastColumn = columns[0];
-        while (columns.Length > 0 && rows.Length > 0) {
-          int pos = rows[0];
-          double minValue = C[rows[0], lastColumn];
-          foreach (int i in rows) {
-            double currentElement = C[i, lastColumn];
-            if (currentElement <= minValue) {
-              minValue = currentElement;
-              pos = i;
-            }
-          }
-          double currentUnit = Math.Min(S[pos, 0], D[lastColumn, 0]);
-          S[pos, 0] -= currentUnit;
-          D[lastColumn, 0] -= currentUnit;
-          if (S[pos, 0] <= 0) {
-            rows = rows.Where(val => val != pos).ToArray();
-          }
-          if (D[lastColumn, 0] <= 0) {
-            columns = columns.Where(val => val != lastColumn).ToArray();
-          }
-          solution[pos, lastColumn] = currentUnit;
-          z += C[pos, lastColumn] * currentUnit;
-        }
-      }
-      
-
-
-      return (z, solution);
-    }
-    
-    private static double getRowDifferenceOfMins(Matrix C, int row, int[] columns) {
-      double firstMin = C[row, 0];
-      double secondMin = C[row, 1]; 
-      
-      foreach (int i in columns) {
-        double currentElement = C[row, i];
-        if (currentElement <= firstMin) {
-          secondMin = firstMin;
-          firstMin = currentElement;
-        } else if (currentElement <= secondMin) {
-          secondMin = currentElement;
-        }
-      }
-      return secondMin - firstMin;
-    }
-
-    private static double getColumnDifferenceOfMins(Matrix C, int column, int[] rows) {
-      double firstMin = C[0, column];
-      double secondMin = C[1, column]; 
-      
-      foreach (int i in rows) {
-        double currentElement = C[i, column];
-        if (currentElement <= firstMin) {
-          secondMin = firstMin;
-          firstMin = currentElement;
-        } else if (currentElement <= secondMin) {
-          secondMin = currentElement;
-        }
-      }
-      return secondMin - firstMin;
-    }    
+    // private static (Matrix, Matrix, Matrix) 
     public static (double, Matrix) NortwestRule(Matrix S, Matrix C, Matrix D) {
       int rows = C.Rows;
       int columns = C.Columns;
@@ -181,5 +26,154 @@ namespace SimplexMethod {
       }
       return (z, solution);
     }
+    
+    public static (double, Matrix) VogelApproximation(Matrix S, Matrix C, Matrix D) {
+      // Initializing rows and columns
+      int[] rows = new int[C.Rows];
+      for (int i = 0; i < C.Rows; i++) {
+        rows[i] = i;
+      }
+      int[] columns = new int[C.Columns];
+      for (int i = 0; i < C.Columns; i++) {
+        columns[i] = i;
+      }
+      Matrix solution = new(C.Rows, C.Columns);
+      double z = 0;
+      // Iterations until size 1 x n or n x 1
+      while (rows.Length > 1 && columns.Length > 1) {
+        (int rowPosition, double maxRowPenalty) = GetMaxRowPenalty(C, rows, columns);
+        (int columnPosition, double maxColumnPenalty) = GetMaxColumnPenalty(C, rows, columns);
+        int choosenRow, choosenColumn;
+        // Choose max from row and column penalty and find minimal element in corresponding column/row
+        if (maxRowPenalty >= maxColumnPenalty) {
+          choosenRow = rowPosition;
+          choosenColumn = GetMinIndexInRow(C, choosenRow, columns);
+        } else {
+          choosenColumn = columnPosition;
+          choosenRow = GetMinIndexInColumn(C, choosenColumn, rows); 
+        }
+        // Buy current unit
+        BuyUnit(ref S, ref C, ref D, ref z, ref solution, ref rows, ref columns, choosenRow, choosenColumn);
+        
+      }
+      // Second part of iterative algorithm for remaining row/column
+      if (rows.Length == 1) {
+        int lastRow = rows[0];
+        while (columns.Length > 0 && rows.Length > 0) {
+          int minColumn = GetMinIndexInRow(C, lastRow, columns);
+          
+          // Buy current unit
+          BuyUnit(ref S, ref C, ref D, ref z, ref solution, ref rows, ref columns, lastRow, minColumn);
+        }
+      } else {
+        int lastColumn = columns[0];
+        while (columns.Length > 0 && rows.Length > 0) {
+          int minRow = GetMinIndexInColumn(C, lastColumn, rows);
+          // Buy current unit
+          BuyUnit(ref S, ref C, ref D, ref z, ref solution, ref rows, ref columns, minRow, lastColumn);
+        }
+      }
+      
+
+
+      return (z, solution);
+    }
+    private static void BuyUnit(ref Matrix S, ref Matrix C, ref Matrix D, ref double z, ref Matrix solution, 
+      ref int[] rows, ref int[] columns, int row, int column) {
+      double currentUnit = Math.Min(S[row, 0], D[column, 0]);
+        S[row, 0] -= currentUnit;
+        D[column, 0] -= currentUnit;
+        if (S[row, 0] <= 0) {
+          rows = rows.Where(val => val != row).ToArray();
+        }
+        if (D[column, 0] <= 0) {
+          columns = columns.Where(val => val != column).ToArray();
+        }
+        solution[row, column] = currentUnit;
+        z += C[row, column] * currentUnit;
+    }
+    private static int GetMinIndexInRow(Matrix C, int row, int[] columns) {
+      int pos = columns[0];
+      double minValue = C[row, columns[0]];
+      foreach (int i in columns) {
+        double currentElement = C[row, i];
+        if (currentElement <= minValue) {
+          minValue = currentElement;
+          pos = i;
+        }
+      }
+      return pos;
+    }
+    private static int GetMinIndexInColumn(Matrix C, int column, int[] rows) {
+      int pos = rows[0];
+      double minValue = C[rows[0], column];
+      foreach (int i in rows) {
+        double currentElement = C[i, column];
+        if (currentElement <= minValue) {
+          minValue = currentElement;
+          pos = i;
+        }
+      }
+      return pos;
+    }
+    private static (int, double) GetMaxRowPenalty(Matrix C, int[] rows, int[] columns) {
+      double maximumRowPenalty = 0;
+      int rowPosition = 0;
+      // Finding max row penalty
+      foreach (int i in rows) {
+        double rowPenalty = GetRowPenalty(C, i, columns);
+        if (rowPenalty >= maximumRowPenalty) {
+          maximumRowPenalty = rowPenalty;
+          rowPosition = i;
+        }
+      }
+      return (rowPosition, maximumRowPenalty);
+    }
+    private static (int, double) GetMaxColumnPenalty(Matrix C, int[] rows, int[] columns) {
+      double maximumColumnPenalty = 0;
+      int columnPosition = 0;
+      // Finding max column penalty
+      foreach (int i in columns) {
+        double columnPenalty = GetColumnPenalty(C, i, rows);
+        if (columnPenalty >= maximumColumnPenalty) {
+          maximumColumnPenalty = columnPenalty;
+          columnPosition = i;
+         }
+      }
+      return (columnPosition, maximumColumnPenalty);
+    }
+    
+    private static double GetRowPenalty(Matrix C, int row, int[] columns) {
+      double firstMin = C[row, 0];
+      double secondMin = C[row, 1]; 
+      
+      foreach (int i in columns) {
+        double currentElement = C[row, i];
+        if (currentElement <= firstMin) {
+          secondMin = firstMin;
+          firstMin = currentElement;
+        } else if (currentElement <= secondMin) {
+          secondMin = currentElement;
+        }
+      }
+      return secondMin - firstMin;
+    }
+
+    private static double GetColumnPenalty(Matrix C, int column, int[] rows) {
+      double firstMin = C[0, column];
+      double secondMin = C[1, column]; 
+      
+      foreach (int i in rows) {
+        double currentElement = C[i, column];
+        if (currentElement <= firstMin) {
+          secondMin = firstMin;
+          firstMin = currentElement;
+        } else if (currentElement <= secondMin) {
+          secondMin = currentElement;
+        }
+      }
+      return secondMin - firstMin;
+    }    
+    
   }
 }
