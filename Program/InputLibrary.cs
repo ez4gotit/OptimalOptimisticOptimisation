@@ -4,11 +4,11 @@ namespace SimplexMethod
 {
     public class InputLibrary
     {
-        public static double[] ReadObjectiveFunctionCoefficients()
+        public static double[] ReadDoubleArray()
         {
             while (true)
             {
-                Console.WriteLine("Enter the coefficients of the objective function (C):");
+                Console.WriteLine("Enter the double array values:");
                 string input = Console.ReadLine();
 
                 if (TryParseDoubleArray(input, out double[] coefficients))
@@ -20,19 +20,13 @@ namespace SimplexMethod
             }
         }
 
-        public static double[,] ReadConstraintMatrix(int numCols)
+        public static double[,] ReadMatrixValues(int numRows, int numColumns)
         {
             while (true)
             {
-                Console.WriteLine("Enter the coefficients of the constraint matrix (A):");
-                Console.WriteLine("Enter the number of rows: ");
-                if (!int.TryParse(Console.ReadLine(), out int numRows) || numRows <= 0)
-                {
-                    Console.WriteLine("Invalid input. Number of rows must be a positive integer.");
-                    continue;
-                }
+                Console.WriteLine("Enter the matrix values:");                
 
-                double[,] matrix = new double[numRows, numCols];
+                double[,] matrix = new double[numRows, numColumns];
 
                 for (int i = 0; i < numRows; i++)
                 {
@@ -41,21 +35,21 @@ namespace SimplexMethod
 
                     if (input != null && TryParseDoubleArray(input, out double[] rowCoefficients))
                     {
-                        if (rowCoefficients.Length != numCols)
+                        if (rowCoefficients.Length != numColumns)
                         {
-                            Console.WriteLine($"Invalid number of coefficients for row {i + 1}. Expected {numCols} coefficients.");
+                            Console.WriteLine($"Invalid number of coefficients for row {i + 1}. Expected {numColumns} coefficients.");
                             i--;
                             continue;
                         }
 
-                        for (int j = 0; j < numCols; j++)
+                        for (int j = 0; j < numColumns; j++)
                         {
                             matrix[i, j] = rowCoefficients[j];
                         }
                     }
                     else
                     {
-                        Console.WriteLine("Invalid input. Please enter comma-separated numbers.");
+                        Console.WriteLine("Invalid input. Please enter space-separated numbers.");
                         i--;
                     }
                 }
@@ -64,46 +58,21 @@ namespace SimplexMethod
             }
         }
 
-        public static double[] ReadRightHandSide(int numRows)
+        
+
+        public static double ReadDoubleValue()
         {
             while (true)
             {
-                Console.WriteLine("Enter the right-hand side numbers (b):");
+                Console.WriteLine("Enter the double value:");
                 string input = Console.ReadLine();
 
-                if (input != null&& TryParseDoubleArray(input, out double[] rhs))
+                if (double.TryParse(input, out double value))
                 {
-                    if (rhs.Length != numRows) 
-                    {
-                        Console.WriteLine($"Invalid amount of numbers. Expected {numRows} numbers.");
-                        continue;
-                    }
-                    foreach (double value in rhs) {
-                        if (value < 0) {
-                            Console.WriteLine("Method is not applicable: all right handside values should nonegative. Please, enter correct data.");
-                            continue;
-                        }
-                    }
-                    return rhs;
+                    return value;
                 }
 
-                Console.WriteLine("Invalid input. Please enter space-separated numbers.");
-            }
-        }
-
-        public static double ReadApproximationAccuracy()
-        {
-            while (true)
-            {
-                Console.WriteLine("Enter the approximation accuracy:");
-                string input = Console.ReadLine();
-
-                if (double.TryParse(input, out double accuracy) && accuracy > 0)
-                {
-                    return accuracy;
-                }
-
-                Console.WriteLine("Invalid input. Accuracy must be a positive number.");
+                Console.WriteLine("Invalid input. Please, input double value:");
             }
         }
 
@@ -123,25 +92,6 @@ namespace SimplexMethod
 
             return true;
         }
-        public static double[] ReadInitialSolution(int numVars)
-         {
-            while (true)
-            {
-                Console.WriteLine("Enter the initial solution:");
-                string input = Console.ReadLine();
-
-                if (TryParseDoubleArray(input, out double[] solution))
-                {
-                    if (solution.Length != numVars) 
-                    {
-                        Console.WriteLine($"Invalid amount of numbers. Expected {numVars} numbers.");
-                        continue;
-                    }
-                    return solution;
-                }
-
-                Console.WriteLine("Invalid input. Please enter space-separated numbers.");
-            }
-        }
+        
     }
 }

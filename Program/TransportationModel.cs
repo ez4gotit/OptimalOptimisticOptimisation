@@ -2,7 +2,11 @@ using System;
 namespace SimplexMethod {
   public class TransportationModel {
     // private static (Matrix, Matrix, Matrix) 
-    public static (double, Matrix) NortwestRule(double[] S, Matrix C, double[] D) {
+    public static (double, Matrix) NortwestRule(double[] vectorS, Matrix C, double[] vectorD) {
+      double [] S = new double[vectorS.Length];
+      Array.Copy(vectorS, S, vectorS.Length); 
+      double [] D = new double[vectorD.Length];
+      Array.Copy(vectorD, D, vectorD.Length);
       int rows = C.Rows;
       int columns = C.Columns;
       Matrix solution = new(rows, columns);
@@ -27,7 +31,11 @@ namespace SimplexMethod {
       return (z, solution);
     }
     
-    public static (double, Matrix) VogelApproximation(double[] S, Matrix C, double[] D) {
+    public static (double, Matrix) VogelApproximation(double[] vectorS, Matrix C, double[] vectorD) {
+      double [] S = new double[vectorS.Length];
+      Array.Copy(vectorS, S, vectorS.Length); 
+      double [] D = new double[vectorD.Length];
+      Array.Copy(vectorD, D, vectorD.Length);
       // Initializing rows and columns
       int[] rows = new int[C.Rows];
       for (int i = 0; i < C.Rows; i++) {
@@ -78,7 +86,11 @@ namespace SimplexMethod {
 
       return (z, solution);
     }
-    public static (double, Matrix) RussellAproximation(double[] S, Matrix C, double[] D) {
+    public static (double, Matrix) RussellAproximation(double[] vectorS, Matrix C, double[] vectorD) {
+      double [] S = new double[vectorS.Length];
+      Array.Copy(vectorS, S, vectorS.Length); 
+      double [] D = new double[vectorD.Length];
+      Array.Copy(vectorD, D, vectorD.Length);
       // Initializing rows and columns
       int[] rows = new int[C.Rows];
       for (int i = 0; i < C.Rows; i++) {
