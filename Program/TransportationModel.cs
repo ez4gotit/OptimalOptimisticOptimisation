@@ -2,15 +2,15 @@ using System;
 namespace SimplexMethod {
   public class TransportationModel {
     // private static (Matrix, Matrix, Matrix) 
-    public static (double, Matrix) NortwestRule(Matrix S, Matrix C, Matrix D) {
+    public static (double, Matrix) NortwestRule(double[] S, Matrix C, double[] D) {
       int rows = C.Rows;
       int columns = C.Columns;
       Matrix solution = new(rows, columns);
       double z = 0;
       for (int i = 0; i < rows; i++) {
         for (int j = 0; j < columns; j++) {
-          double currentSupply = S[i, 0];
-          double currentDemand = D[j, 0];
+          double currentSupply = S[i];
+          double currentDemand = D[j];
           if (currentSupply == 0) {
             break;
           }
@@ -18,8 +18,8 @@ namespace SimplexMethod {
             continue;
           }
           double currentUnits = Math.Min(currentSupply, currentDemand);
-          S[i, 0] -= currentUnits;
-          D[j, 0] -= currentUnits;
+          S[i] -= currentUnits;
+          D[j] -= currentUnits;
           solution[i, j] = currentUnits;
           z += C[i, j] * currentUnits;
         }
@@ -27,7 +27,7 @@ namespace SimplexMethod {
       return (z, solution);
     }
     
-    public static (double, Matrix) VogelApproximation(Matrix S, Matrix C, Matrix D) {
+    public static (double, Matrix) VogelApproximation(double[] S, Matrix C, double[] D) {
       // Initializing rows and columns
       int[] rows = new int[C.Rows];
       for (int i = 0; i < C.Rows; i++) {
@@ -78,15 +78,15 @@ namespace SimplexMethod {
 
       return (z, solution);
     }
-    private static void BuyUnit(ref Matrix S, ref Matrix C, ref Matrix D, ref double z, ref Matrix solution, 
+    private static void BuyUnit(ref double[] S, ref Matrix C, ref double[] D, ref double z, ref Matrix solution, 
       ref int[] rows, ref int[] columns, int row, int column) {
-      double currentUnit = Math.Min(S[row, 0], D[column, 0]);
-        S[row, 0] -= currentUnit;
-        D[column, 0] -= currentUnit;
-        if (S[row, 0] <= 0) {
+      double currentUnit = Math.Min(S[row], D[column]);
+        S[row] -= currentUnit;
+        D[column] -= currentUnit;
+        if (S[row] <= 0) {
           rows = rows.Where(val => val != row).ToArray();
         }
-        if (D[column, 0] <= 0) {
+        if (D[column] <= 0) {
           columns = columns.Where(val => val != column).ToArray();
         }
         solution[row, column] = currentUnit;
@@ -144,8 +144,8 @@ namespace SimplexMethod {
     }
     
     private static double GetRowPenalty(Matrix C, int row, int[] columns) {
-      double firstMin = C[row, 0];
-      double secondMin = C[row, 1]; 
+      double firstMin = C[row, columns[0]];
+      double secondMin = C[row, columns[1]]; 
       
       foreach (int i in columns) {
         double currentElement = C[row, i];
@@ -160,8 +160,8 @@ namespace SimplexMethod {
     }
 
     private static double GetColumnPenalty(Matrix C, int column, int[] rows) {
-      double firstMin = C[0, column];
-      double secondMin = C[1, column]; 
+      double firstMin = C[rows[0], column];
+      double secondMin = C[rows[1], column]; 
       
       foreach (int i in rows) {
         double currentElement = C[i, column];
